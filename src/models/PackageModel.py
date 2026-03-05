@@ -95,22 +95,38 @@ class MyDependentMenu(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config: title = "Sub Settings"
 
+# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Inputs) ---
 class CensorExecutorInputs(Inputs):
     inputImage: InputImageOne
-
-class CensorExecutorOutputs(Outputs):
-    outputImage: OutputImage
+    value: str = ""
+    type: Literal["object"] = "object"
+    field: Literal["input"] = "input"
 
 class MixExecutorInputs(Inputs):
     inputImageOne: InputImageOne
     inputImageTwo: InputImageTwo
+    value: str = ""
+    type: Literal["object"] = "object"
+    field: Literal["input"] = "input"
+
+# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Outputs) ---
+class CensorExecutorOutputs(Outputs):
+    outputImage: OutputImage
+    type: Literal["object"] = "object"
+    field: Literal["output"] = "output"
 
 class MixExecutorOutputs(Outputs):
     outputImage: OutputImage
     processingLog: OutputLog
+    type: Literal["object"] = "object"
+    field: Literal["output"] = "output"
 
+# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Configs) ---
 class CensorExecutorConfigs(Configs):
     menu: MyDependentMenu
+    value: str = "Configs"
+    type: Literal["object"] = "object"
+    field: Literal["config"] = "config"
 
 class CensorExecutorRequest(Request):
     inputs: Optional[CensorExecutorInputs]
@@ -122,6 +138,9 @@ class CensorExecutorResponse(Response):
 
 class MixExecutorConfigs(Configs):
     menu: MyDependentMenu
+    value: str = "Configs"
+    type: Literal["object"] = "object"
+    field: Literal["config"] = "config"
 
 class MixExecutorRequest(Request):
     inputs: Optional[MixExecutorInputs]
@@ -158,8 +177,12 @@ class ConfigExecutor(Config):
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
+    value: str = "Configs"
+    type: Literal["object"] = "object"
+    field: Literal["config"] = "config"
 
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
     name: Literal["DemoPackageSarp"] = "DemoPackageSarp"
+    UID: str = "1234567"
