@@ -53,55 +53,68 @@ class MyDependentMenu(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config: title = "Alt Ayarlar"
 
-class InnerConfigs(Configs):
-    menu: MyDependentMenu
-
-class CensorInputs(Inputs):
+class CensorExecutorInputs(Inputs):
     inputImage: InputImage
 
-class MixInputs(Inputs):
+class CensorExecutorOutputs(Outputs):
+    outputImage: OutputImage
+
+class MixExecutorInputs(Inputs):
     inputImageOne: InputImage
     inputImageTwo: InputImage
 
-class CensorOutputs(Outputs):
-    outputImage: OutputImage
-
-class MixOutputs(Outputs):
+class MixExecutorOutputs(Outputs):
     outputImage: OutputImage
     processingLog: OutputLog
 
-class CensorRequest(Request):
-    inputs: Optional[CensorInputs]
-    configs: InnerConfigs
-    class Config: json_schema_extra = {"target": "configs"}
+class CensorExecutorConfigs(Configs):
+    menu: MyDependentMenu
 
-class MixRequest(Request):
-    inputs: Optional[MixInputs]
-    configs: InnerConfigs
-    class Config: json_schema_extra = {"target": "configs"}
+class CensorExecutorRequest(Request):
+    inputs: Optional[CensorExecutorInputs]
+    configs: CensorExecutorConfigs
+    class Config:
+        json_schema_extra = {"target": "configs"}
+
+class CensorExecutorResponse(Response):
+    outputs: CensorExecutorOutputs
+
+class MixExecutorConfigs(Configs):
+    menu: MyDependentMenu
+
+class MixExecutorRequest(Request):
+    inputs: Optional[MixExecutorInputs]
+    configs: MixExecutorConfigs
+    class Config:
+        json_schema_extra = {"target": "configs"}
+
+class MixExecutorResponse(Response):
+    outputs: MixExecutorOutputs
 
 class CensorExecutor(Config):
     name: Literal["CensorExecutor"] = "CensorExecutor"
-    value: Union[CensorRequest, Response]
+    value: Union[CensorExecutorRequest, CensorExecutorResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
-    class Config: title = "Görüntü Sansürleyici"
+    class Config:
+        title = "Görüntü Sansürleyici"
+        json_schema_extra = {"target": {"value": 0}}
 
 class MixExecutor(Config):
     name: Literal["MixExecutor"] = "MixExecutor"
-    value: Union[MixRequest, Response]
+    value: Union[MixExecutorRequest, MixExecutorResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
-    class Config: title = "Görüntü Karıştırıcı"
+    class Config:
+        title = "Görüntü Karıştırıcı"
+        json_schema_extra = {"target": {"value": 0}}
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
     value: Union[CensorExecutor, MixExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: 
-        title = "İşlem Türü"
-        json_schema_extra = {"target": "value"}
+    class Config: title = "İşlem Türü"
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
