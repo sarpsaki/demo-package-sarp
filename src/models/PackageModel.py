@@ -1,13 +1,10 @@
-
-from __future__ import annotations 
+from __future__ import annotations
 from pydantic import Field, validator
 from typing import Optional, Union, Literal, List
 from sdks.novavision.src.base.model import (
     Package, Configs, Config, Request, Response, 
     Image, Input, Output, Inputs, Outputs
 )
-
-
 
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
@@ -34,6 +31,7 @@ class OutputLog(Output):
     value: str = ""
     type: Literal["string"] = "string"
     class Config: title = "İşlem Günlüğü"
+
 class OptionA(Config):
     val1: int = Field(default=15, title="Sayı Girişi")
     val2: Literal["Seçenek 1", "Seçenek 2"] = "Seçenek 1"
@@ -54,82 +52,56 @@ class MyDependentMenu(Config):
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config: title = "Alt Ayarlar"
+
+class InnerConfigs(Configs):
+    menu: MyDependentMenu
+
 class CensorInputs(Inputs):
     inputImage: InputImage
-
-class CensorOutputs(Outputs):
-    outputImage: OutputImage
-
 
 class MixInputs(Inputs):
     inputImageOne: InputImage
     inputImageTwo: InputImage
 
+class CensorOutputs(Outputs):
+    outputImage: OutputImage
+
 class MixOutputs(Outputs):
     outputImage: OutputImage
-    processingLog: OutputLog 
+    processingLog: OutputLog
 
 class CensorRequest(Request):
     inputs: Optional[CensorInputs]
-    configs: PackageConfigs
+    configs: InnerConfigs
+    class Config: json_schema_extra = {"target": "configs"}
 
-    class Config:
-        json_schema_extra = {
-            "target": "configs"
-        }
-
-
-class CensorResponse(Response):
-    outputs: CensorOutputs
 class MixRequest(Request):
     inputs: Optional[MixInputs]
-    configs: PackageConfigs
-
-    class Config:
-        json_schema_extra = {
-            "target": "configs"
-        }
-
-
-class MixResponse(Response):
-    outputs: MixOutputs
-class MixExecutor(Config):
-    name: Literal["MixExecutor"] = "MixExecutor"
-    value: Union[MixRequest, MixResponse]
-    type: Literal["object"] = "object"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Package"
-        json_schema_extra = {
-            "target": {
-                "value": 0
-            }
-        }
+    configs: InnerConfigs
+    class Config: json_schema_extra = {"target": "configs"}
 
 class CensorExecutor(Config):
     name: Literal["CensorExecutor"] = "CensorExecutor"
-    value: Union[CensorRequest, CensorResponse]
+    value: Union[CensorRequest, Response]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
+    class Config: title = "Görüntü Sansürleyici"
 
-    class Config:
-        title = "Package"
-        json_schema_extra = {
-            "target": {
-                "value": 0
-            }
-        }
+class MixExecutor(Config):
+    name: Literal["MixExecutor"] = "MixExecutor"
+    value: Union[MixRequest, Response]
+    type: Literal["object"] = "object"
+    field: Literal["option"] = "option"
+    class Config: title = "Görüntü Karıştırıcı"
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
     value: Union[CensorExecutor, MixExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-
-    class Config:
+    class Config: 
         title = "İşlem Türü"
-      
+        json_schema_extra = {"target": "value"}
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
@@ -138,4 +110,3 @@ class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
     name: Literal["DemoPackageSarp"] = "DemoPackageSarp"
-    
