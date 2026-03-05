@@ -6,15 +6,25 @@ from sdks.novavision.src.base.model import (
     Image, Input, Output, Inputs, Outputs
 )
 
-class InputImage(Input):
-    name: Literal["inputImage"] = "inputImage"
+class InputImageOne(Input):
+    name: Literal["inputImageOne"] = "inputImageOne"
     value: Union[List[Image], Image]
     type: str = "object"
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
         val = values.get('value')
         return "list" if isinstance(val, list) else "object"
-    class Config: title = "Görüntü Girdisi"
+    class Config: title = "Image 1"
+
+class InputImageTwo(Input):
+    name: Literal["inputImageTwo"] = "inputImageTwo"
+    value: Union[List[Image], Image]
+    type: str = "object"
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        val = values.get('value')
+        return "list" if isinstance(val, list) else "object"
+    class Config: title = "Image 2"
 
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
@@ -24,44 +34,76 @@ class OutputImage(Output):
     def set_type_based_on_value(cls, value, values):
         val = values.get('value')
         return "list" if isinstance(val, list) else "object"
-    class Config: title = "Görüntü Çıktısı"
+    class Config: title = "Output Image"
 
 class OutputLog(Output):
     name: Literal["outputLog"] = "outputLog"
     value: str = ""
     type: Literal["string"] = "string"
-    class Config: title = "İşlem Günlüğü"
+    class Config: title = "Processing Log"
+
+class BlurIntensityParam(Config):
+    name: Literal["BlurIntensityParam"] = "BlurIntensityParam"
+    value: int = Field(default=15)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Intensity"
+
+class BlurTypeParam(Config):
+    name: Literal["BlurTypeParam"] = "BlurTypeParam"
+    value: Literal["Type 1", "Type 2"] = "Type 1"
+    type: Literal["string"] = "string"
+    field: Literal["dropdownlist"] = "dropdownlist"
+    class Config: title = "Type"
 
 class OptionA(Config):
-    val1: int = Field(default=15, title="Sayı Girişi")
-    val2: Literal["Seçenek 1", "Seçenek 2"] = "Seçenek 1"
     name: Literal["OptionA"] = "OptionA"
-    value: Literal["Yöntem 1"] = "Yöntem 1"
+    param1: BlurIntensityParam
+    param2: BlurTypeParam
+    value: Literal["Method 1"] = "Method 1"
+    type: Literal["string"] = "string"
     field: Literal["option"] = "option"
+    class Config: title = "Method 1"
+
+class SizeParam(Config):
+    name: Literal["SizeParam"] = "SizeParam"
+    value: int = Field(default=30)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Size"
+
+class SpeedParam(Config):
+    name: Literal["SpeedParam"] = "SpeedParam"
+    value: Literal["Fast", "Slow"] = "Fast"
+    type: Literal["string"] = "string"
+    field: Literal["dropdownlist"] = "dropdownlist"
+    class Config: title = "Speed"
 
 class OptionB(Config):
-    val1: int = Field(default=30, title="Genişlik")
-    val2: Literal["Hızlı", "Yavaş"] = "Hızlı"
     name: Literal["OptionB"] = "OptionB"
-    value: Literal["Yöntem 2"] = "Yöntem 2"
+    param1: SizeParam
+    param2: SpeedParam
+    value: Literal["Method 2"] = "Method 2"
+    type: Literal["string"] = "string"
     field: Literal["option"] = "option"
+    class Config: title = "Method 2"
 
 class MyDependentMenu(Config):
     name: Literal["MyDependentMenu"] = "MyDependentMenu"
     value: Union[OptionA, OptionB]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Alt Ayarlar"
+    class Config: title = "Sub Settings"
 
 class CensorExecutorInputs(Inputs):
-    inputImage: InputImage
+    inputImage: InputImageOne
 
 class CensorExecutorOutputs(Outputs):
     outputImage: OutputImage
 
 class MixExecutorInputs(Inputs):
-    inputImageOne: InputImage
-    inputImageTwo: InputImage
+    inputImageOne: InputImageOne
+    inputImageTwo: InputImageTwo
 
 class MixExecutorOutputs(Outputs):
     outputImage: OutputImage
@@ -73,8 +115,7 @@ class CensorExecutorConfigs(Configs):
 class CensorExecutorRequest(Request):
     inputs: Optional[CensorExecutorInputs]
     configs: CensorExecutorConfigs
-    class Config:
-        json_schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class CensorExecutorResponse(Response):
     outputs: CensorExecutorOutputs
@@ -85,8 +126,7 @@ class MixExecutorConfigs(Configs):
 class MixExecutorRequest(Request):
     inputs: Optional[MixExecutorInputs]
     configs: MixExecutorConfigs
-    class Config:
-        json_schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class MixExecutorResponse(Response):
     outputs: MixExecutorOutputs
@@ -97,7 +137,7 @@ class CensorExecutor(Config):
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     class Config:
-        title = "Görüntü Sansürleyici"
+        title = "Image Censor"
         json_schema_extra = {"target": {"value": 0}}
 
 class MixExecutor(Config):
@@ -106,7 +146,7 @@ class MixExecutor(Config):
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     class Config:
-        title = "Görüntü Karıştırıcı"
+        title = "Image Mixer"
         json_schema_extra = {"target": {"value": 0}}
 
 class ConfigExecutor(Config):
@@ -114,7 +154,7 @@ class ConfigExecutor(Config):
     value: Union[CensorExecutor, MixExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "İşlem Türü"
+    class Config: title = "Task Type"
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
