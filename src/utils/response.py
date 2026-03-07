@@ -1,15 +1,33 @@
-
 from sdks.novavision.src.helper.package import PackageHelper
-from components.Package.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor, PackageOutputs, PackageResponse, PackageExecutor, OutputImage
 
+from components.DemoPackageSarp.src.models.PackageModel import (
+    PackageModel, PackageConfigs, ConfigExecutor,
+    CensorExecutor, CensorExecutorResponse, CensorExecutorOutputs,
+    MixExecutor, MixExecutorResponse, MixExecutorOutputs,
+    OutputImage, OutputLog
+)
 
 def build_response(context):
-    outputImage = OutputImage(value=context.image)
-    Outputs = PackageOutputs(outputImage=outputImage)
-    packageResponse = PackageResponse(outputs=Outputs)
-    packageExecutor = PackageExecutor(value=packageResponse)
-    executor = ConfigExecutor(value=packageExecutor)
-    packageConfigs = PackageConfigs(executor=executor)
-    package = PackageHelper(packageModel=PackageModel, packageConfigs=packageConfigs)
+    if context.executor_type == "CensorExecutor":
+        output_image = OutputImage(value=context.outputImage)
+        outputs = CensorExecutorOutputs(outputImage=output_image)
+        response = CensorExecutorResponse(outputs=outputs)
+        executor_node = CensorExecutor(value=response)
+        
+    elif context.executor_type == "MixExecutor":
+        output_image = OutputImage(value=context.outputImage)
+        processing_log = OutputLog(value=context.processingLog)
+        outputs = MixExecutorOutputs(outputImage=output_image, processingLog=processing_log)
+        response = MixExecutorResponse(outputs=outputs)
+        executor_node = MixExecutor(value=response)
+        
+    else:
+        raise ValueError("Bilinmeyen Executor Türü!")
+
+    config_executor = ConfigExecutor(value=executor_node)
+    package_configs = PackageConfigs(executor=config_executor)
+    
+    package = PackageHelper(packageModel=PackageModel, packageConfigs=package_configs)
     packageModel = package.build_model(context)
+    
     return packageModel

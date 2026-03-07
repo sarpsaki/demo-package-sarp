@@ -1,61 +1,81 @@
-"""
-    It is one of the preprocessing components in which the image is rotated.
-"""
-
 import os
 import cv2
 import sys
+import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../'))
 
 from sdks.novavision.src.media.image import Image
 from sdks.novavision.src.base.component import Component
 from sdks.novavision.src.helper.executor import Executor
-from components.Package.src.utils.response import build_response
-from components.Package.src.models.PackageModel import PackageModel
+from components.DemoPackageSarp.src.utils.response import build_response
+from components.DemoPackageSarp.src.models.PackageModel import PackageModel
 
-
-class Package(Component):
+class CensorExecutor(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
-        self.rotation_degree = self.request.get_param("Degree")
-        self.keep_side = self.request.get_param("KeepSide")
-        self.image = self.request.get_param("inputImage")
+        self.executor_type = self.request.model.configs.executor.value.name
+        
+        self.image_one_data = self.request.get_param("inputImageOne")
+        self.blur_intensity = self.request.get_param("BlurIntensityParam")
+        self.blur_type = self.request.get_param("BlurTypeParam")
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
 
-    def rotation(self, image):
-        if self.keep_side == True:
-            height, width = image.shape[:2]
-            image_center = (width / 2, height / 2)
-            rotation_arr = cv2.getRotationMatrix2D(image_center, self.rotation_degree, 1)
-            abs_cos = abs(rotation_arr[0, 0])
-            abs_sin = abs(rotation_arr[0, 1])
-            bound_w = int(height * abs_sin + width * abs_cos)
-            bound_h = int(height * abs_cos + width * abs_sin)
-            rotation_arr[0, 2] += bound_w / 2 - image_center[0]
-            rotation_arr[1, 2] += bound_h / 2 - image_center[1]
-            img_rotation = cv2.warpAffine(image, rotation_arr, (bound_w, bound_h))
-
-            return img_rotation
-
-        elif self.keep_side == False:
-            height, width = image.shape[:2]
-            rotation_arr = cv2.getRotationMatrix2D((height / 2, width / 2), self.rotation_degree, 1)
-            img_rotation = cv2.warpAffine(image, rotation_arr, (height, width))
-
-            return img_rotation
+    def process_censor(self, img_value):
+        intensity = int(self.blur_intensity) if self.blur_intensity else 15
+        k_size = intensity if intensity % 2 != 0 else intensity + 1
+        
+        if self.blur_type == "Type 2":
+            return cv2.medianBlur(img_value, k_size)
+        else:
+            return cv2.GaussianBlur(img_value, (k_size, k_size), 0)
 
     def run(self):
-        img = Image.get_frame(img=self.image, redis_db=self.redis_db)
-        img.value = self.rotation(img.value)
-        self.image = Image.set_frame(img=img, package_uID=self.uID, redis_db=self.redis_db)
+        img1 = Image.get_frame(img=self.image_one_data, redis_db=self.redis_db)
+        img1.value = self.process_censor(img1.value)
+        self.outputImage = Image.set_frame(img=img1, package_uID=self.uID, redis_db=self.redis_db)
+        
         packageModel = build_response(context=self)
         return packageModel
 
+class MixExecutor(Component):
+    def __init__(self, request, bootstrap):
+        super().__init__(request, bootstrap)
+        self.request.model = PackageModel(**(self.request.data))
+        self.executor_type = self.request.model.configs.executor.value.name
+        
+        self.image_one_data = self.request.get_param("inputImageOne")
+        self.image_two_data = self.request.get_param("inputImageTwo")
+        self.mix_size = self.request.get_param("SizeParam")
+        self.mix_speed = self.request.get_param("SpeedParam")
+
+    @staticmethod
+    def bootstrap(config: dict) -> dict:
+        return {}
+
+    def process_mix(self, img1_value, img2_value):
+        height, width = img1_value.shape[:2]
+        img2_resized = cv2.resize(img2_value, (width, height))
+        
+        mixed_img = cv2.addWeighted(img1_value, 0.5, img2_resized, 0.5, 0)
+        return mixed_img
+
+    def run(self):
+        img1 = Image.get_frame(img=self.image_one_data, redis_db=self.redis_db)
+        img2 = Image.get_frame(img=self.image_two_data, redis_db=self.redis_db)
+        
+        mixed_val = self.process_mix(img1.value, img2.value)
+        img1.value = mixed_val
+        
+        self.outputImage = Image.set_frame(img=img1, package_uID=self.uID, redis_db=self.redis_db)
+        self.processingLog = f"Islem Basarili! Resimler {self.mix_speed} hizinda, {self.mix_size} boyutuyla birlestirildi."
+
+        packageModel = build_response(context=self)
+        return packageModel
 
 if "__main__" == __name__:
     Executor(sys.argv[1]).run()

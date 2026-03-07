@@ -109,7 +109,7 @@ class MixExecutorInputs(Inputs):
     type: Literal["object"] = "object"
     field: Literal["input"] = "input"
 
-# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Outputs) ---
+
 class CensorExecutorOutputs(Outputs):
     outputImage: OutputImage
     type: Literal["object"] = "object"
@@ -121,7 +121,7 @@ class MixExecutorOutputs(Outputs):
     type: Literal["object"] = "object"
     field: Literal["output"] = "output"
 
-# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Configs) ---
+
 class CensorExecutorConfigs(Configs):
     menu: MyDependentMenu
     value: str = "Configs"
@@ -185,4 +185,4 @@ class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
     name: Literal["DemoPackageSarp"] = "DemoPackageSarp"
-    UID: str = "1234567"
+    uID: str = "1234567"
