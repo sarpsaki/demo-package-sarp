@@ -49,53 +49,59 @@ class BlurIntensityParam(Config):
     field: Literal["textInput"] = "textInput"
     class Config: title = "Intensity"
 
-class BlurTypeParam(Config):
-    name: Literal["BlurTypeParam"] = "BlurTypeParam"
-    value: Literal["Type 1", "Type 2"] = "Type 1"
-    type: Literal["string"] = "string"
-    field: Literal["dropdownlist"] = "dropdownlist"
-    class Config: title = "Type"
-
-class OptionA(Config):
-    name: Literal["OptionA"] = "OptionA"
-    param1: BlurIntensityParam
-    param2: BlurTypeParam
-    value: Literal["Method 1"] = "Method 1"
+class CensorMethod1(Config):
+    name: Literal["CensorMethod1"] = "CensorMethod1"
+    intensity: BlurIntensityParam
+    value: Literal["Gaussian"] = "Gaussian"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
-    class Config: title = "Method 1"
+    class Config: title = "Gaussian Blur"
 
-class SizeParam(Config):
-    name: Literal["SizeParam"] = "SizeParam"
+class CensorMethod2(Config):
+    name: Literal["CensorMethod2"] = "CensorMethod2"
+    intensity: BlurIntensityParam
+    value: Literal["Median"] = "Median"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+    class Config: title = "Median Blur"
+
+class CensorMenu(Config):
+    name: Literal["CensorMenu"] = "CensorMenu"
+    value: Union[CensorMethod1, CensorMethod2]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+    class Config: title = "Blur Settings"
+
+class MixSizeParam(Config):
+    name: Literal["MixSizeParam"] = "MixSizeParam"
     value: int = Field(default=30)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config: title = "Size"
 
-class SpeedParam(Config):
-    name: Literal["SpeedParam"] = "SpeedParam"
-    value: Literal["Fast", "Slow"] = "Fast"
-    type: Literal["string"] = "string"
-    field: Literal["dropdownlist"] = "dropdownlist"
-    class Config: title = "Speed"
-
-class OptionB(Config):
-    name: Literal["OptionB"] = "OptionB"
-    param1: SizeParam
-    param2: SpeedParam
-    value: Literal["Method 2"] = "Method 2"
+class MixMethod1(Config):
+    name: Literal["MixMethod1"] = "MixMethod1"
+    size: MixSizeParam
+    value: Literal["Blend50"] = "Blend50"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
-    class Config: title = "Method 2"
+    class Config: title = "Normal Blend (50%)"
 
-class MyDependentMenu(Config):
-    name: Literal["MyDependentMenu"] = "MyDependentMenu"
-    value: Union[OptionA, OptionB]
+class MixMethod2(Config):
+    name: Literal["MixMethod2"] = "MixMethod2"
+    size: MixSizeParam
+    value: Literal["Blend70"] = "Blend70"
+    type: Literal["string"] = "string"
+    field: Literal["option"] = "option"
+    class Config: title = "Hard Blend (70%)"
+
+class MixMenu(Config):
+    name: Literal["MixMenu"] = "MixMenu"
+    value: Union[MixMethod1, MixMethod2]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Sub Settings"
+    class Config: title = "Mix Settings"
 
-# --- EKSİKLERİN GİDERİLDİĞİ KISIM (Inputs) ---
 class CensorExecutorInputs(Inputs):
     inputImage: InputImageOne
     value: str = ""
@@ -109,7 +115,6 @@ class MixExecutorInputs(Inputs):
     type: Literal["object"] = "object"
     field: Literal["input"] = "input"
 
-
 class CensorExecutorOutputs(Outputs):
     outputImage: OutputImage
     type: Literal["object"] = "object"
@@ -121,9 +126,8 @@ class MixExecutorOutputs(Outputs):
     type: Literal["object"] = "object"
     field: Literal["output"] = "output"
 
-
 class CensorExecutorConfigs(Configs):
-    menu: MyDependentMenu
+    menu: CensorMenu
     value: str = "Configs"
     type: Literal["object"] = "object"
     field: Literal["config"] = "config"
@@ -137,7 +141,7 @@ class CensorExecutorResponse(Response):
     outputs: CensorExecutorOutputs
 
 class MixExecutorConfigs(Configs):
-    menu: MyDependentMenu
+    menu: MixMenu
     value: str = "Configs"
     type: Literal["object"] = "object"
     field: Literal["config"] = "config"
