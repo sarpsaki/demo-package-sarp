@@ -11,76 +11,67 @@ from sdks.novavision.src.helper.executor import Executor
 from components.DemoPackageSarp.src.utils.response import build_response
 from components.DemoPackageSarp.src.models.PackageModel import PackageModel
 
-class CensorExecutor(Component):
+class Package(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
         self.executor_type = self.request.model.configs.executor.value.name
         
+    @staticmethod
+    def bootstrap(config: dict) -> dict:
+        return {}
+
+    def process_censor(self):
+        self.image_one_data = self.request.get_param("inputImageOne")
         censor_menu = self.request.get_param("CensorMenu")
         self.blur_method = censor_menu.get("name") if censor_menu else "CensorMethod1"
         
-        self.image_one_data = self.request.get_param("inputImageOne")
-        self.blur_intensity = self.request.get_param("BlurIntensityParam")
-
-    @staticmethod
-    def bootstrap(config: dict) -> dict:
-        return {}
-
-    def process_censor(self, img_value):
-        intensity = int(self.blur_intensity) if self.blur_intensity else 15
+        if self.blur_method == "CensorMethod1":
+            intensity = self.request.get_param("GaussianIntensity")
+        else:
+            intensity = self.request.get_param("MedianIntensity")
+            
+        intensity = int(intensity) if intensity else 15
         k_size = intensity if intensity % 2 != 0 else intensity + 1
         
-        if self.blur_method == "CensorMethod2":
-            return cv2.medianBlur(img_value, k_size)
-        else:
-            return cv2.GaussianBlur(img_value, (k_size, k_size), 0)
-
-    def run(self):
         img1 = Image.get_frame(img=self.image_one_data, redis_db=self.redis_db)
-        img1.value = self.process_censor(img1.value)
+        if self.blur_method == "CensorMethod2":
+            img1.value = cv2.medianBlur(img1.value, k_size)
+        else:
+            img1.value = cv2.GaussianBlur(img1.value, (k_size, k_size), 0)
+        
         self.outputImage = Image.set_frame(img=img1, package_uID=self.uID, redis_db=self.redis_db)
-        
-        packageModel = build_response(context=self)
-        return packageModel
 
-class MixExecutor(Component):
-    def __init__(self, request, bootstrap):
-        super().__init__(request, bootstrap)
-        self.request.model = PackageModel(**(self.request.data))
-        self.executor_type = self.request.model.configs.executor.value.name
-        
+    def process_mix(self):
+        self.image_one_data = self.request.get_param("inputImageOne")
+        self.image_two_data = self.request.get_param("inputImageTwo")
         mix_menu = self.request.get_param("MixMenu")
         self.mix_method = mix_menu.get("name") if mix_menu else "MixMethod1"
         
-        self.image_one_data = self.request.get_param("inputImageOne")
-        self.image_two_data = self.request.get_param("inputImageTwo")
-        self.mix_size = self.request.get_param("MixSizeParam")
-
-    @staticmethod
-    def bootstrap(config: dict) -> dict:
-        return {}
-
-    def process_mix(self, img1_value, img2_value):
-        height, width = img1_value.shape[:2]
-        img2_resized = cv2.resize(img2_value, (width, height))
-        
-        if self.mix_method == "MixMethod2":
-            mixed_img = cv2.addWeighted(img1_value, 0.7, img2_resized, 0.3, 0)
+        if self.mix_method == "MixMethod1":
+            self.mix_size = self.request.get_param("Blend50Size")
         else:
-            mixed_img = cv2.addWeighted(img1_value, 0.5, img2_resized, 0.5, 0)
-        return mixed_img
+            self.mix_size = self.request.get_param("Blend70Size")
 
-    def run(self):
         img1 = Image.get_frame(img=self.image_one_data, redis_db=self.redis_db)
         img2 = Image.get_frame(img=self.image_two_data, redis_db=self.redis_db)
         
-        mixed_val = self.process_mix(img1.value, img2.value)
-        img1.value = mixed_val
+        height, width = img1.value.shape[:2]
+        img2_resized = cv2.resize(img2.value, (width, height))
         
+        alpha = 0.7 if self.mix_method == "MixMethod2" else 0.5
+        mixed_val = cv2.addWeighted(img1.value, 1-alpha, img2_resized, alpha, 0)
+        
+        img1.value = mixed_val
         self.outputImage = Image.set_frame(img=img1, package_uID=self.uID, redis_db=self.redis_db)
-        self.processingLog = f"Islem Basarili! Resimler {self.mix_method} moduyla ve {self.mix_size} boyutuyla birlestirildi."
+        self.processingLog = f"Mod: {self.mix_method}, Boyut: {self.mix_size}"
 
+    def run(self):
+        if self.executor_type == "CensorExecutor":
+            self.process_censor()
+        elif self.executor_type == "MixExecutor":
+            self.process_mix()
+            
         packageModel = build_response(context=self)
         return packageModel
 

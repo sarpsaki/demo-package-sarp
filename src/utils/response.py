@@ -16,8 +16,8 @@ def build_response(context):
         
     elif context.executor_type == "MixExecutor":
         output_image = OutputImage(value=context.outputImage)
-        processing_log = OutputLog(value=context.processingLog)
-        outputs = MixExecutorOutputs(outputImage=output_image, processingLog=processing_log)
+        output_log = OutputLog(value=context.processingLog)
+        outputs = MixExecutorOutputs(outputImage=output_image, outputLog=output_log)
         response = MixExecutorResponse(outputs=outputs)
         executor_node = MixExecutor(value=response)
         
@@ -28,6 +28,6 @@ def build_response(context):
     package_configs = PackageConfigs(executor=config_executor)
     
     package = PackageHelper(packageModel=PackageModel, packageConfigs=package_configs)
-    packageModel = package.build_model(context)
+    package_model_result = package.build_model(context)
     
-    return packageModel
+    return package_model_result

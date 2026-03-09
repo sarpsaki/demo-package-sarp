@@ -72,7 +72,7 @@ class Blend70Size(Config):
 
 class CensorMethod1(Config):
     name: Literal["CensorMethod1"] = "CensorMethod1"
-    intensity: GaussianIntensity
+    GaussianIntensity: GaussianIntensity
     value: Literal["Gaussian"] = "Gaussian"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -80,7 +80,7 @@ class CensorMethod1(Config):
 
 class CensorMethod2(Config):
     name: Literal["CensorMethod2"] = "CensorMethod2"
-    intensity: MedianIntensity
+    MedianIntensity: MedianIntensity
     value: Literal["Median"] = "Median"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -88,7 +88,7 @@ class CensorMethod2(Config):
 
 class MixMethod1(Config):
     name: Literal["MixMethod1"] = "MixMethod1"
-    size: Blend50Size
+    Blend50Size: Blend50Size
     value: Literal["Blend50"] = "Blend50"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -96,7 +96,7 @@ class MixMethod1(Config):
 
 class MixMethod2(Config):
     name: Literal["MixMethod2"] = "MixMethod2"
-    size: Blend70Size
+    Blend70Size: Blend70Size
     value: Literal["Blend70"] = "Blend70"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -121,7 +121,7 @@ class MixMenu(Config):
         json_schema_extra = {"target": "value"}
 
 class CensorExecutorInputs(Inputs):
-    inputImage: InputImageOne
+    inputImageOne: InputImageOne
     value: str = ""
     type: Literal["object"] = "object"
     field: Literal["input"] = "input"
@@ -140,12 +140,12 @@ class CensorExecutorOutputs(Outputs):
 
 class MixExecutorOutputs(Outputs):
     outputImage: OutputImage
-    processingLog: OutputLog
+    outputLog: OutputLog
     type: Literal["object"] = "object"
     field: Literal["output"] = "output"
 
 class CensorExecutorConfigs(Configs):
-    menu: CensorMenu
+    CensorMenu: CensorMenu
     value: str = "Configs"
     type: Literal["object"] = "object"
     field: Literal["config"] = "config"
@@ -159,7 +159,7 @@ class CensorExecutorResponse(Response):
     outputs: CensorExecutorOutputs
 
 class MixExecutorConfigs(Configs):
-    menu: MixMenu
+    MixMenu: MixMenu
     value: str = "Configs"
     type: Literal["object"] = "object"
     field: Literal["config"] = "config"
