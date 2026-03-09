@@ -1,5 +1,4 @@
 from sdks.novavision.src.helper.package import PackageHelper
-
 from components.DemoPackageSarp.src.models.PackageModel import (
     PackageModel, PackageConfigs, ConfigExecutor,
     CensorExecutor, CensorExecutorResponse, CensorExecutorOutputs,
@@ -22,7 +21,7 @@ def build_response(context):
         executor_node = MixExecutor(value=response)
         
     else:
-        raise ValueError("Bilinmeyen Executor Türü!")
+        raise ValueError("Unknown Executor Type!")
 
     config_executor = ConfigExecutor(value=executor_node)
     package_configs = PackageConfigs(executor=config_executor)
