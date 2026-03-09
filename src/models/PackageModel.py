@@ -209,4 +209,4 @@ class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
     name: Literal["DemoPackageSarp"] = "DemoPackageSarp"
-    uID: str = "1234567" 
+    uID: str = "1234567"
