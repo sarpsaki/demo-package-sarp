@@ -107,14 +107,18 @@ class CensorMenu(Config):
     value: Union[CensorMethod1, CensorMethod2]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Blur Settings"
+    class Config: 
+        title = "Blur Settings"
+        json_schema_extra = {"target": "value"}
 
 class MixMenu(Config):
     name: Literal["MixMenu"] = "MixMenu"
     value: Union[MixMethod1, MixMethod2]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Mix Settings"
+    class Config: 
+        title = "Mix Settings"
+        json_schema_extra = {"target": "value"}
 
 class CensorExecutorInputs(Inputs):
     inputImage: InputImageOne
@@ -149,7 +153,7 @@ class CensorExecutorConfigs(Configs):
 class CensorExecutorRequest(Request):
     inputs: Optional[CensorExecutorInputs]
     configs: CensorExecutorConfigs
-    class Config: schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class CensorExecutorResponse(Response):
     outputs: CensorExecutorOutputs
@@ -163,7 +167,7 @@ class MixExecutorConfigs(Configs):
 class MixExecutorRequest(Request):
     inputs: Optional[MixExecutorInputs]
     configs: MixExecutorConfigs
-    class Config: schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class MixExecutorResponse(Response):
     outputs: MixExecutorOutputs
@@ -175,7 +179,7 @@ class CensorExecutor(Config):
     field: Literal["option"] = "option"
     class Config:
         title = "Image Censor"
-        schema_extra = {"target": {"value": 0}}
+        json_schema_extra = {"target": {"value": 0}}
 
 class MixExecutor(Config):
     name: Literal["MixExecutor"] = "MixExecutor"
@@ -184,14 +188,16 @@ class MixExecutor(Config):
     field: Literal["option"] = "option"
     class Config:
         title = "Image Mixer"
-        schema_extra = {"target": {"value": 0}}
+        json_schema_extra = {"target": {"value": 0}}
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
     value: Union[CensorExecutor, MixExecutor]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Task Type"
+    class Config: 
+        title = "Task Type"
+        json_schema_extra = {"target": "value"}
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
