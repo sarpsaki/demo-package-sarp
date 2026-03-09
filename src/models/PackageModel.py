@@ -42,16 +42,37 @@ class OutputLog(Output):
     type: Literal["string"] = "string"
     class Config: title = "Processing Log"
 
-class BlurIntensityParam(Config):
-    name: Literal["BlurIntensityParam"] = "BlurIntensityParam"
+class GaussianIntensity(Config):
+    name: Literal["GaussianIntensity"] = "GaussianIntensity"
     value: int = Field(default=15)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
     class Config: title = "Intensity"
 
+class MedianIntensity(Config):
+    name: Literal["MedianIntensity"] = "MedianIntensity"
+    value: int = Field(default=15)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Intensity"
+
+class Blend50Size(Config):
+    name: Literal["Blend50Size"] = "Blend50Size"
+    value: int = Field(default=30)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Size"
+
+class Blend70Size(Config):
+    name: Literal["Blend70Size"] = "Blend70Size"
+    value: int = Field(default=30)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Size"
+
 class CensorMethod1(Config):
     name: Literal["CensorMethod1"] = "CensorMethod1"
-    intensity: BlurIntensityParam
+    intensity: GaussianIntensity
     value: Literal["Gaussian"] = "Gaussian"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -59,29 +80,15 @@ class CensorMethod1(Config):
 
 class CensorMethod2(Config):
     name: Literal["CensorMethod2"] = "CensorMethod2"
-    intensity: BlurIntensityParam
+    intensity: MedianIntensity
     value: Literal["Median"] = "Median"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
     class Config: title = "Median Blur"
 
-class CensorMenu(Config):
-    name: Literal["CensorMenu"] = "CensorMenu"
-    value: Union[CensorMethod1, CensorMethod2]
-    type: Literal["object"] = "object"
-    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
-    class Config: title = "Blur Settings"
-
-class MixSizeParam(Config):
-    name: Literal["MixSizeParam"] = "MixSizeParam"
-    value: int = Field(default=30)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    class Config: title = "Size"
-
 class MixMethod1(Config):
     name: Literal["MixMethod1"] = "MixMethod1"
-    size: MixSizeParam
+    size: Blend50Size
     value: Literal["Blend50"] = "Blend50"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -89,11 +96,18 @@ class MixMethod1(Config):
 
 class MixMethod2(Config):
     name: Literal["MixMethod2"] = "MixMethod2"
-    size: MixSizeParam
+    size: Blend70Size
     value: Literal["Blend70"] = "Blend70"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
     class Config: title = "Hard Blend (70%)"
+
+class CensorMenu(Config):
+    name: Literal["CensorMenu"] = "CensorMenu"
+    value: Union[CensorMethod1, CensorMethod2]
+    type: Literal["object"] = "object"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
+    class Config: title = "Blur Settings"
 
 class MixMenu(Config):
     name: Literal["MixMenu"] = "MixMenu"
@@ -135,7 +149,7 @@ class CensorExecutorConfigs(Configs):
 class CensorExecutorRequest(Request):
     inputs: Optional[CensorExecutorInputs]
     configs: CensorExecutorConfigs
-    class Config: json_schema_extra = {"target": "configs"}
+    class Config: schema_extra = {"target": "configs"}
 
 class CensorExecutorResponse(Response):
     outputs: CensorExecutorOutputs
@@ -149,7 +163,7 @@ class MixExecutorConfigs(Configs):
 class MixExecutorRequest(Request):
     inputs: Optional[MixExecutorInputs]
     configs: MixExecutorConfigs
-    class Config: json_schema_extra = {"target": "configs"}
+    class Config: schema_extra = {"target": "configs"}
 
 class MixExecutorResponse(Response):
     outputs: MixExecutorOutputs
@@ -161,7 +175,7 @@ class CensorExecutor(Config):
     field: Literal["option"] = "option"
     class Config:
         title = "Image Censor"
-        json_schema_extra = {"target": {"value": 0}}
+        schema_extra = {"target": {"value": 0}}
 
 class MixExecutor(Config):
     name: Literal["MixExecutor"] = "MixExecutor"
@@ -170,7 +184,7 @@ class MixExecutor(Config):
     field: Literal["option"] = "option"
     class Config:
         title = "Image Mixer"
-        json_schema_extra = {"target": {"value": 0}}
+        schema_extra = {"target": {"value": 0}}
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
