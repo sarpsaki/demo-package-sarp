@@ -173,7 +173,7 @@ class MixExecutorResponse(Response):
     outputs: MixExecutorOutputs
 
 class CensorExecutor(Config):
-    name: Literal["CensorExecutor"] = "CensorExecutor"
+    name: Literal["Censor"] = "Censor"
     value: Union[CensorExecutorRequest, CensorExecutorResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
@@ -182,7 +182,7 @@ class CensorExecutor(Config):
         json_schema_extra = {"target": {"value": 0}}
 
 class MixExecutor(Config):
-    name: Literal["MixExecutor"] = "MixExecutor"
+    name: Literal["Mix"] = "Mix"
     value: Union[MixExecutorRequest, MixExecutorResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
@@ -197,7 +197,7 @@ class ConfigExecutor(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config: 
         title = "Task Type"
-        json_schema_extra = {"target": "value"}
+        json_schema_extra = { "shortDescription": "Select the type of image processing task to perform." }
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
