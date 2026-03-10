@@ -16,7 +16,9 @@ class Censor(Component):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**self.request.data)
         self.image_data = self.request.get_param("inputImage")
-
+    @staticmethod
+    def bootstrap(config: dict) -> dict:
+        return {}
     def run(self):
         method = self.request.get_param("configCensorMethods")
         intensity = self.request.get_param("GaussianIntensity") or self.request.get_param("MedianIntensity")

@@ -17,7 +17,9 @@ class Mix(Component):
         self.request.model = PackageModel(**self.request.data)
         self.img1_data = self.request.get_param("inputImageOne")
         self.img2_data = self.request.get_param("inputImageTwo")
-
+    @staticmethod
+    def bootstrap(config: dict) -> dict:
+        return {}
     def run(self):
         method = self.request.get_param("configMixMethods")
         intensity = self.request.get_param("NormalBlendRatio") or self.request.get_param("HardBlendRatio")

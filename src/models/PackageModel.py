@@ -7,6 +7,7 @@ from sdks.novavision.src.base.model import (
 )
 
 
+
 class InputImage(Input):
     name: Literal["inputImage"] = "inputImage"
     value: Union[List[Image], Image]
@@ -34,38 +35,33 @@ class OutputLog(Output):
     class Config: title = "Status Log"
 
 
-class GaussianIntensity(Config):
-    name: Literal["GaussianIntensity"] = "GaussianIntensity"
+class IntensityValue(Config):
+    name: Literal["intensityValue"] = "intensityValue"
     value: int = Field(default=15)
     type: Literal["number"] = "number"
     field: Literal["textInput"] = "textInput"
-    class Config: title = "Intensity"
+    class Config: title = "Intensity / Size"
 
-class GaussianGrayToggle(Config):
-    name: Literal["GaussianGrayToggle"] = "GaussianGrayToggle"
+
+class GrayscaleToggle(Config):
+    name: Literal["grayscaleToggle"] = "grayscaleToggle"
     value: bool = Field(default=False)
     type: Literal["boolean"] = "boolean"
     field: Literal["checkbox"] = "checkbox"
     class Config: title = "Apply Grayscale"
 
-class MedianIntensity(Config):
-    name: Literal["MedianIntensity"] = "MedianIntensity"
-    value: int = Field(default=15)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    class Config: title = "Intensity"
-
-class MedianGrayToggle(Config):
-    name: Literal["MedianGrayToggle"] = "MedianGrayToggle"
+class InvertToggle(Config):
+    name: Literal["invertToggle"] = "invertToggle"
     value: bool = Field(default=False)
     type: Literal["boolean"] = "boolean"
     field: Literal["checkbox"] = "checkbox"
-    class Config: title = "Apply Grayscale"
+    class Config: title = "Invert Image"
+
 
 class OptionGaussian(Config):
     name: Literal["optionGaussian"] = "optionGaussian"
-    GaussianIntensity: GaussianIntensity 
-    GaussianGrayToggle: GaussianGrayToggle 
+    IntensityValue: IntensityValue   
+    GrayscaleToggle: GrayscaleToggle 
     value: Literal["GAUSSIAN"] = "GAUSSIAN"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -73,8 +69,8 @@ class OptionGaussian(Config):
 
 class OptionMedian(Config):
     name: Literal["optionMedian"] = "optionMedian"
-    MedianIntensity: MedianIntensity 
-    MedianGrayToggle: MedianGrayToggle 
+    IntensityValue: IntensityValue   
+    GrayscaleToggle: GrayscaleToggle 
     value: Literal["MEDIAN"] = "MEDIAN"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -87,16 +83,16 @@ class ConfigCensorMethods(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
         title = "Blur Methods"
-        json_schema_extra = {"target": "value"}
+        json_schema_extra = {"target": "value"} 
 
 class CensorConfigs(Configs):
     configCensorMethods: ConfigCensorMethods
 
 class CensorInputs(Inputs):
-    inputImage: InputImage
+    inputImage: InputImage 
 
 class CensorOutputs(Outputs):
-    outputImage: OutputImage
+    outputImage: OutputImage 
 
 class CensorRequest(Request):
     inputs: Optional[CensorInputs]
@@ -116,38 +112,11 @@ class CensorExecutor(Config):
         json_schema_extra = {"target": {"value": 0}}
 
 
-class NormalBlendRatio(Config):
-    name: Literal["NormalBlendRatio"] = "NormalBlendRatio"
-    value: int = Field(default=50)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    class Config: title = "Blend Ratio"
-
-class NormalInvertToggle(Config):
-    name: Literal["NormalInvertToggle"] = "NormalInvertToggle"
-    value: bool = Field(default=False)
-    type: Literal["boolean"] = "boolean"
-    field: Literal["checkbox"] = "checkbox"
-    class Config: title = "Invert Image"
-
-class HardBlendRatio(Config):
-    name: Literal["HardBlendRatio"] = "HardBlendRatio"
-    value: int = Field(default=70)
-    type: Literal["number"] = "number"
-    field: Literal["textInput"] = "textInput"
-    class Config: title = "Blend Ratio"
-
-class HardInvertToggle(Config):
-    name: Literal["HardInvertToggle"] = "HardInvertToggle"
-    value: bool = Field(default=False)
-    type: Literal["boolean"] = "boolean"
-    field: Literal["checkbox"] = "checkbox"
-    class Config: title = "Invert Image"
 
 class OptionNormalBlend(Config):
     name: Literal["optionNormalBlend"] = "optionNormalBlend"
-    NormalBlendRatio: NormalBlendRatio
-    NormalInvertToggle: NormalInvertToggle
+    IntensityValue: IntensityValue 
+    InvertToggle: InvertToggle     
     value: Literal["NORMAL"] = "NORMAL"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -155,8 +124,8 @@ class OptionNormalBlend(Config):
 
 class OptionHardBlend(Config):
     name: Literal["optionHardBlend"] = "optionHardBlend"
-    HardBlendRatio: HardBlendRatio
-    HardInvertToggle: HardInvertToggle
+    IntensityValue: IntensityValue 
+    InvertToggle: InvertToggle     
     value: Literal["HARD"] = "HARD"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -175,12 +144,12 @@ class MixConfigs(Configs):
     configMixMethods: ConfigMixMethods
 
 class MixInputs(Inputs):
-    inputImageOne: InputImage
-    inputImageTwo: InputImage
+    inputImageOne: InputImage 
+    inputImageTwo: InputImage 
 
 class MixOutputs(Outputs):
-    outputImage: OutputImage
-    outputLog: OutputLog
+    outputImage: OutputImage  
+    outputLog: OutputLog      
 
 class MixRequest(Request):
     inputs: Optional[MixInputs]
@@ -199,6 +168,8 @@ class MixExecutor(Config):
         title = "Image Mixer"
         json_schema_extra = {"target": {"value": 0}}
 
+
+
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
     value: Union[CensorExecutor, MixExecutor]
@@ -206,7 +177,10 @@ class ConfigExecutor(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
         title = "Task Type"
-        json_schema_extra = {"target": "value"}
+        json_schema_extra = {
+            "shortDescription": "Select the type of image processing task to perform.",
+        }
+  
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor
