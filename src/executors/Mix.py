@@ -21,8 +21,8 @@ class Mix(Component):
     def run(self):
       
         method = self.request.get_param("configMixMethods")
-        intensity = self.request.get_param("intensityValue")
-        apply_invert = self.request.get_param("invertToggle")
+        intensity = self.request.get_param("NormalBlendRatio") or self.request.get_param("HardBlendRatio")
+        apply_invert = self.request.get_param("NormalInvertToggle") or self.request.get_param("HardInvertToggle")
 
       
         blend_ratio = (int(intensity) if intensity else 50) / 100.0

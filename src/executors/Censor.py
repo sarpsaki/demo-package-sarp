@@ -20,8 +20,8 @@ class Censor(Component):
     def run(self):
         
         method = self.request.get_param("configCensorMethods")
-        intensity = self.request.get_param("intensityValue")
-        apply_gray = self.request.get_param("grayscaleToggle")
+        intensity = self.request.get_param("GaussianIntensity") or self.request.get_param("MedianIntensity")
+        apply_gray = self.request.get_param("GaussianGrayToggle") or self.request.get_param("MedianGrayToggle")
         
   
         intensity = int(intensity) if intensity else 15
