@@ -10,8 +10,11 @@ class InputImage(Input):
 
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
-        val = values.get('value')
-        return "list" if isinstance(val, list) else "object"
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
 
     class Config:
         title = "Image"
@@ -24,8 +27,11 @@ class OutputImage(Output):
 
     @validator("type", pre=True, always=True)
     def set_type_based_on_value(cls, value, values):
-        val = values.get('value')
-        return "list" if isinstance(val, list) else "object"
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
 
     class Config:
         title = "Processed Image"
@@ -100,18 +106,12 @@ class ConfigCensorMethods(Config):
     Includes options for intensity and grayscale toggling.
     """
     name: Literal["configCensorMethods"] = "configCensorMethods"
-    value: Union[
-        OptionGaussian,
-        OptionMedian
-    ]
+    value: Union[OptionGaussian, OptionMedian]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Blur Methods"
-        json_schema_extra = {
-            "target": "value"
-        }
 
 
 class CensorConfigs(Configs):
@@ -185,18 +185,12 @@ class ConfigMixMethods(Config):
     Includes options for blend ratio and inverting the second image.
     """
     name: Literal["configMixMethods"] = "configMixMethods"
-    value: Union[
-        OptionNormalBlend,
-        OptionHardBlend
-    ]
+    value: Union[OptionNormalBlend, OptionHardBlend]
     type: Literal["object"] = "object"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Mix Methods"
-        json_schema_extra = {
-            "target": "value"
-        }
 
 
 class MixConfigs(Configs):
