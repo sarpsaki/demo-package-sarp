@@ -20,6 +20,41 @@ class InputImage(Input):
         title = "Image"
 
 
+class InputImageOne(Input):
+    name: Literal["inputImageOne"] = "inputImageOne"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
+
+    class Config:
+        title = "Image One"
+
+
+class InputImageTwo(Input):
+    name: Literal["inputImageTwo"] = "inputImageTwo"
+    value: Union[List[Image], Image]
+    type: str = "object"
+
+    @validator("type", pre=True, always=True)
+    def set_type_based_on_value(cls, value, values):
+        value = values.get('value')
+        if isinstance(value, Image):
+            return "object"
+        elif isinstance(value, list):
+            return "list"
+
+    class Config:
+        title = "Image Two"
+
+
+    
 class OutputImage(Output):
     name: Literal["outputImage"] = "outputImage"
     value: Union[List[Image], Image]
@@ -198,8 +233,8 @@ class MixConfigs(Configs):
 
 
 class MixInputs(Inputs):
-    inputImageOne: InputImage 
-    inputImageTwo: InputImage 
+    inputImageOne: InputImageOne
+    inputImageTwo: InputImageTwo
 
 
 class MixOutputs(Outputs):
