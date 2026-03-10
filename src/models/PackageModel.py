@@ -28,8 +28,40 @@ class OutputImage(Output):
         return "list" if isinstance(val, list) else "object"
     class Config: title = "Processed Image"
 
+class OutputLog(Output):
+    name: Literal["outputLog"] = "outputLog"
+    value: str = ""
+    type: Literal["string"] = "string"
+    class Config: title = "Status Log"
+
+
+class IntensityValue(Config):
+    name: Literal["intensityValue"] = "intensityValue"
+    value: int = Field(default=15)
+    type: Literal["number"] = "number"
+    field: Literal["textInput"] = "textInput"
+    class Config: title = "Intensity / Size"
+
+
+class GrayscaleToggle(Config):
+    name: Literal["grayscaleToggle"] = "grayscaleToggle"
+    value: bool = Field(default=False)
+    type: Literal["boolean"] = "boolean"
+    field: Literal["checkbox"] = "checkbox"
+    class Config: title = "Apply Grayscale"
+
+class InvertToggle(Config):
+    name: Literal["invertToggle"] = "invertToggle"
+    value: bool = Field(default=False)
+    type: Literal["boolean"] = "boolean"
+    field: Literal["checkbox"] = "checkbox"
+    class Config: title = "Invert Image"
+
+
 class OptionGaussian(Config):
     name: Literal["optionGaussian"] = "optionGaussian"
+    IntensityValue: IntensityValue   
+    GrayscaleToggle: GrayscaleToggle 
     value: Literal["GAUSSIAN"] = "GAUSSIAN"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -37,6 +69,8 @@ class OptionGaussian(Config):
 
 class OptionMedian(Config):
     name: Literal["optionMedian"] = "optionMedian"
+    IntensityValue: IntensityValue   
+    GrayscaleToggle: GrayscaleToggle 
     value: Literal["MEDIAN"] = "MEDIAN"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -44,26 +78,26 @@ class OptionMedian(Config):
 
 class ConfigCensorMethods(Config):
     name: Literal["configCensorMethods"] = "configCensorMethods"
-    value: List[Union[OptionGaussian, OptionMedian]]
+    value: Union[OptionGaussian, OptionMedian]
     type: Literal["object"] = "object"
-    field: Literal["selectBox"] = "selectBox"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
         title = "Blur Methods"
+        json_schema_extra = {"target": "value"} 
 
 class CensorConfigs(Configs):
     configCensorMethods: ConfigCensorMethods
 
 class CensorInputs(Inputs):
-    inputImage: InputImage
+    inputImage: InputImage 
 
 class CensorOutputs(Outputs):
-    outputImage: OutputImage
+    outputImage: OutputImage 
 
 class CensorRequest(Request):
     inputs: Optional[CensorInputs]
     configs: CensorConfigs
-    class Config:
-        json_schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class CensorResponse(Response):
     outputs: CensorOutputs
@@ -74,19 +108,15 @@ class CensorExecutor(Config):
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     class Config:
-        title = "Censor"
+        title = "Image Censor"
         json_schema_extra = {"target": {"value": 0}}
 
 
 
-class OutputLog(Output):
-    name: Literal["outputLog"] = "outputLog"
-    value: str = ""
-    type: Literal["string"] = "string"
-    class Config: title = "Status Log"
-
 class OptionNormalBlend(Config):
     name: Literal["optionNormalBlend"] = "optionNormalBlend"
+    IntensityValue: IntensityValue 
+    InvertToggle: InvertToggle     
     value: Literal["NORMAL"] = "NORMAL"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -94,6 +124,8 @@ class OptionNormalBlend(Config):
 
 class OptionHardBlend(Config):
     name: Literal["optionHardBlend"] = "optionHardBlend"
+    IntensityValue: IntensityValue 
+    InvertToggle: InvertToggle     
     value: Literal["HARD"] = "HARD"
     type: Literal["string"] = "string"
     field: Literal["option"] = "option"
@@ -101,28 +133,28 @@ class OptionHardBlend(Config):
 
 class ConfigMixMethods(Config):
     name: Literal["configMixMethods"] = "configMixMethods"
-    value: List[Union[OptionNormalBlend, OptionHardBlend]]
+    value: Union[OptionNormalBlend, OptionHardBlend]
     type: Literal["object"] = "object"
-    field: Literal["selectBox"] = "selectBox"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
         title = "Mix Methods"
+        json_schema_extra = {"target": "value"}
 
 class MixConfigs(Configs):
     configMixMethods: ConfigMixMethods
 
 class MixInputs(Inputs):
     inputImageOne: InputImage 
-    inputImageTwo: InputImage
+    inputImageTwo: InputImage 
 
 class MixOutputs(Outputs):
-    outputImage: OutputImage
-    outputLog: OutputLog
+    outputImage: OutputImage  
+    outputLog: OutputLog      
 
 class MixRequest(Request):
     inputs: Optional[MixInputs]
     configs: MixConfigs
-    class Config:
-        json_schema_extra = {"target": "configs"}
+    class Config: json_schema_extra = {"target": "configs"}
 
 class MixResponse(Response):
     outputs: MixOutputs
@@ -133,8 +165,9 @@ class MixExecutor(Config):
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
     class Config:
-        title = "Mix"
+        title = "Image Mixer"
         json_schema_extra = {"target": {"value": 0}}
+
 
 
 class ConfigExecutor(Config):
@@ -144,9 +177,7 @@ class ConfigExecutor(Config):
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
     class Config:
         title = "Task Type"
-        json_schema_extra = {
-            "shortDescription": "Select the engine."
-        }
+        json_schema_extra = {"target": "value"}
 
 class PackageConfigs(Configs):
     executor: ConfigExecutor

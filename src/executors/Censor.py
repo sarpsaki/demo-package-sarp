@@ -15,19 +15,26 @@ class Censor(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**self.request.data)
-   
         self.image_data = self.request.get_param("inputImage")
 
     def run(self):
-     
-        method = self.request.get_param("configCensorMethods")
         
-   
-        intensity = 15 
+        method = self.request.get_param("configCensorMethods")
+        intensity = self.request.get_param("intensityValue")
+        apply_gray = self.request.get_param("grayscaleToggle")
+        
+  
+        intensity = int(intensity) if intensity else 15
         k_size = intensity if intensity % 2 != 0 else intensity + 1
         
         img_obj = Image.get_frame(img=self.image_data, redis_db=self.redis_db)
         
+
+        if apply_gray:
+            gray = cv2.cvtColor(img_obj.value, cv2.COLOR_BGR2GRAY)
+            img_obj.value = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            
+      
         if method == "GAUSSIAN":
             img_obj.value = cv2.GaussianBlur(img_obj.value, (k_size, k_size), 0)
         elif method == "MEDIAN":
